@@ -21,23 +21,23 @@ class CompanyInvestment(object):
 
 
 class ExcelParser(metaclass=ABCMeta):
-    @abstractmethod
     @property
+    @abstractmethod
     def COMPANIES_START_ROW(self):
         pass
 
-    @abstractmethod
     @property
+    @abstractmethod
     def COMPANIES_ID_COL(self):
         pass
 
-    @abstractmethod
     @property
+    @abstractmethod
     def STAKE_AT_COMPANY_COL(self):
         pass
 
-    @abstractmethod
     @property
+    @abstractmethod
     def STAKE_SHEET_NAME(self):
         pass
 
