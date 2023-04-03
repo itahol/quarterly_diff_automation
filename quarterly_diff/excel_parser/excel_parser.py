@@ -1,3 +1,5 @@
+from abc import ABCMeta, abstractmethod
+
 import xlrd
 
 
@@ -18,29 +20,40 @@ class CompanyInvestment(object):
         return f"<CompanyInvestment: {self._company_id}>"
 
 
-class Phoenix(object):
-    ROWS_MAPPING = {
-        "COMPANIES_START_ROW": 13
-    }
-    COLUMNS_MAPPING = {
-        "COMPANY_ID": 5,
-        "STAKE_AT_COMPANY": 8,
-    }
-    STAKES_SHEET_NAME = "מניות"
+class ExcelParser(metaclass=ABCMeta):
+    @abstractmethod
+    @property
+    def COMPANIES_START_ROW(self):
+        pass
+
+    @abstractmethod
+    @property
+    def COMPANIES_ID_COL(self):
+        pass
+
+    @abstractmethod
+    @property
+    def STAKE_AT_COMPANY_COL(self):
+        pass
+
+    @abstractmethod
+    @property
+    def STAKE_SHEET_NAME(self):
+        pass
 
     def __init__(self, workbook_path):
         self._workbook = xlrd.open_workbook(workbook_path)
-        self._sheet = self._workbook.sheet_by_name(self.STAKES_SHEET_NAME)
+        self._sheet = self._workbook.sheet_by_name(self.STAKE_SHEET_NAME)
 
     def _get_company_id(self, investment):
-        return investment[self.COLUMNS_MAPPING["COMPANY_ID"]].value
+        return investment[self.COMPANIES_ID_COL].value
 
     def _get_stake_at_company(self, investment):
-        return investment[self.COLUMNS_MAPPING["STAKE_AT_COMPANY"]].value
+        return investment[self.STAKE_AT_COMPANY_COL].value
 
     @property
     def _investments_rows(self):
-        return (self._sheet.row(index) for index in range(self.ROWS_MAPPING["COMPANIES_START_ROW"], self._sheet.nrows)
+        return (self._sheet.row(index) for index in range(self.COMPANIES_START_ROW, self._sheet.nrows)
                 if self._get_company_id(self._sheet.row(index)))
 
     @property
