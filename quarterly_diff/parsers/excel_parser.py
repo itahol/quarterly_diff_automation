@@ -1,6 +1,11 @@
+from __future__ import annotations
 from abc import ABCMeta, abstractmethod
+from typing import TYPE_CHECKING
 
 import xlrd
+
+if TYPE_CHECKING:
+    from typing import Generator, Iterator
 
 
 class CompanyInvestment(object):
@@ -9,11 +14,11 @@ class CompanyInvestment(object):
         self._stake = stake
 
     @property
-    def company_id(self):
+    def company_id(self) -> str:
         return self._company_id
 
     @property
-    def stake(self):
+    def stake(self) -> float:
         return self._stake
 
     def __sub__(self, other) -> CompanyInvestment:
@@ -67,7 +72,17 @@ class ExcelParser(metaclass=ABCMeta):
                 if self._get_company_id(self._sheet.row(index)))
 
     @property
-    def investments(self):
+    def investments(self) -> Generator[CompanyInvestment, None, None]:
         return (CompanyInvestment(company_id=self._get_company_id(investment),
                                   stake=self._get_stake_at_company(investment)) for investment in
                 self._investments_rows)
+
+    @property
+    def summed_investments(self) -> Iterator[CompanyInvestment, None, None]:
+        companies_dict = {}
+        for investment in self.investments:
+            companies_dict[investment.company_id] = companies_dict.get(investment.company_id,
+                                                                       CompanyInvestment(
+                                                                           company_id=investment.company_id,
+                                                                           stake=0)) + investment
+        return iter(companies_dict.values())
