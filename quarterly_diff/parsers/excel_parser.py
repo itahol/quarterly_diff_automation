@@ -16,7 +16,17 @@ class CompanyInvestment(object):
     def stake(self):
         return self._stake
 
-    def __repr__(self):
+    def __sub__(self, other) -> CompanyInvestment:
+        if other.company_id != self.company_id:
+            raise ValueError(f"Different ID's! {self.company_id} != {other.company_id}")
+        return CompanyInvestment(company_id=self.company_id, stake=self.stake - other.stake)
+
+    def __add__(self, other) -> CompanyInvestment:
+        if other.company_id != self.company_id:
+            raise ValueError(f"Different ID's! {self.company_id} != {other.company_id}")
+        return CompanyInvestment(company_id=self.company_id, stake=self.stake + other.stake)
+
+    def __repr__(self) -> str:
         return f"<CompanyInvestment: {self._company_id}>"
 
 
