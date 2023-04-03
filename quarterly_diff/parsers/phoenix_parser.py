@@ -1,4 +1,4 @@
-from excel_parser import ExcelParser
+from .excel_parser import ExcelParser
 
 
 class Phoenix(ExcelParser):
