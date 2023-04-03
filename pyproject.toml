@@ -1,0 +1,20 @@
+[tool.poetry]
+name = "quarterly-diff"
+version = "0.1.0"
+description = ""
+authors = ["Itamar <itamar@ivc-online>"]
+readme = "README.md"
+packages = [{include = "quarterly_diff"}]
+
+[tool.poetry.dependencies]
+python = "^3.11"
+openpyxl = "^3.1.2"
+xlrd = "^2.0.1"
+
+
+[tool.poetry.group.dev.dependencies]
+ipython = "^8.12.0"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
