@@ -15,7 +15,7 @@ if TYPE_CHECKING:
     from openpyxl.worksheet.worksheet import Worksheet as XLSXWorksheet
     from xlrd.sheet import Sheet as XLSWorksheet
 
-    InvestmentPortfolio = Dict[Tuple[str, str], CompanyInvestment]
+InvestmentPortfolio = Dict[Tuple[str, str], CompanyInvestment]
 
 
 def _get_rows_from_xls(
