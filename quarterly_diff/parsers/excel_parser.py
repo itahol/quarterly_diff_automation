@@ -14,7 +14,7 @@ if TYPE_CHECKING:
     from xlrd.sheet import Sheet as XLSWorksheet
 
 
-class CompanyInvestment(object):
+class CompanyInvestment:
     def __init__(self, company_id: str, stake: float, currency: str = "שקל חדש", company_name: str = ""):
         self._company_id = company_id
         self._stake = stake
@@ -40,7 +40,7 @@ class CompanyInvestment(object):
     def __sub__(self, other: CompanyInvestment) -> CompanyInvestment:
         if other.company_id != self.company_id:
             raise ValueError(f"Different ID's! {self.company_id} != {other.company_id}")
-        elif other.currency != self.currency:
+        if other.currency != self.currency:
             raise ValueError(f"Different currencies! {self.currency} != {other.currency}")
 
         return CompanyInvestment(company_id=self.company_id, stake=self.stake - other.stake, currency=self.currency,
@@ -49,7 +49,7 @@ class CompanyInvestment(object):
     def __add__(self, other: CompanyInvestment) -> CompanyInvestment:
         if other.company_id != self.company_id:
             raise ValueError(f"Different ID's! {self.company_id} != {other.company_id}")
-        elif other.currency != self.currency:
+        if other.currency != self.currency:
             raise ValueError(f"Different currencies! {self.currency} != {other.currency}")
 
         return CompanyInvestment(company_id=self.company_id, stake=self.stake + other.stake, currency=self.currency,
@@ -87,32 +87,32 @@ def _get_rows_from_xlsx(sheet: XLSXWorksheet,
 class ExcelParser(metaclass=ABCMeta):
     @property
     @abstractmethod
-    def COMPANIES_START_ROW(self):
+    def COMPANIES_START_ROW(self):  # pylint: disable=C0103
         pass
 
     @property
     @abstractmethod
-    def COMPANY_NAME_COL(self):
+    def COMPANY_NAME_COL(self):  # pylint: disable=C0103
         pass
 
     @property
     @abstractmethod
-    def COMPANIES_ID_COL(self):
+    def COMPANIES_ID_COL(self):  # pylint: disable=C0103
         pass
 
     @property
     @abstractmethod
-    def STAKE_AT_COMPANY_COL(self):
+    def STAKE_AT_COMPANY_COL(self):  # pylint: disable=C0103
         pass
 
     @property
     @abstractmethod
-    def CURRENCY_COL(self):
+    def CURRENCY_COL(self):  # pylint: disable=C0103
         pass
 
     @property
     @abstractmethod
-    def STAKE_SHEET_NAME(self):
+    def STAKE_SHEET_NAME(self):  # pylint: disable=C0103
         pass
 
     EXT_TO_LIB = {
@@ -149,8 +149,9 @@ class ExcelParser(metaclass=ABCMeta):
     def _investments_rows(self) -> Generator[list, None, None]:
         if self._file_ext == ".xls":
             return _get_rows_from_xls(self._sheet, self.COMPANIES_START_ROW, self._sheet.nrows, self._get_company_id)
-        elif self._file_ext == ".xlsx":
+        if self._file_ext == ".xlsx":
             return _get_rows_from_xlsx(self._sheet, self.COMPANIES_START_ROW, self._sheet.max_row, self._get_company_id)
+        raise ValueError(f"No defined way to extract rows from {self._file_ext} file")
 
     @property
     def investments(self) -> Generator[CompanyInvestment, None, None]:

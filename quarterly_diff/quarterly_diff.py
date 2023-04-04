@@ -1,6 +1,6 @@
 from typing import Tuple
 
-from .parsers import Menora, Phoenix, Altshuler, InvestmentPortfolio
+from .parsers import Phoenix, InvestmentPortfolio
 
 
 def compare_portfolios(prev_quarter_path: str, quarter_path: str) -> Tuple[
