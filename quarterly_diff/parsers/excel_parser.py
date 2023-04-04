@@ -1,11 +1,17 @@
 from __future__ import annotations
+
+import os.path
 from abc import ABCMeta, abstractmethod
 from typing import TYPE_CHECKING
 
+import openpyxl
 import xlrd
 
 if TYPE_CHECKING:
-    from typing import Generator, Iterator
+    from typing import Generator, Iterator, Callable, Union, Any
+    from openpyxl.worksheet.worksheet import Worksheet as XLSXWorksheet
+    from openpyxl.worksheet.worksheet import Worksheet as XLSXWorksheet
+    from xlrd.sheet import Sheet as XLSWorksheet
 
 
 class CompanyInvestment(object):
@@ -46,6 +52,21 @@ class CompanyInvestment(object):
         return f"<CompanyInvestment: {self._company_id}>"
 
 
+def _get_rows_from_xls(
+        sheet: XLSWorksheet,
+        start_index: int,
+        end_index: int,
+        condition_func: Callable[[Union[list, tuple]], Any]) -> Generator[list, None, None]:
+    return (sheet.row(index) for index in range(start_index, end_index) if condition_func(sheet.row(index)))
+
+
+def _get_rows_from_xlsx(sheet: XLSXWorksheet,
+                        start_index: int,
+                        end_index: int,
+                        condition_func: Callable[[Union[list, tuple]], Any]) -> Generator[list, None, None]:
+    return (row for row in sheet.iter_rows(min_row=start_index, max_row=end_index) if condition_func(row))
+
+
 class ExcelParser(metaclass=ABCMeta):
     @property
     @abstractmethod
@@ -72,23 +93,39 @@ class ExcelParser(metaclass=ABCMeta):
     def STAKE_SHEET_NAME(self):
         pass
 
+    EXT_TO_LIB = {
+        ".xlsx": openpyxl,
+        ".xls": xlrd,
+    }
+
     def __init__(self, workbook_path):
-        self._workbook = xlrd.open_workbook(workbook_path)
-        self._sheet = self._workbook.sheet_by_name(self.STAKE_SHEET_NAME)
+        self._file_ext = os.path.splitext(workbook_path)[-1]
+        if self._file_ext == ".xls":
+            self._workbook = xlrd.open_workbook(workbook_path)
+            self._sheet = self._workbook.sheet_by_name(self.STAKE_SHEET_NAME)  # type: XLSWorksheet
+        elif self._file_ext == ".xlsx":
+            self._workbook = openpyxl.load_workbook(workbook_path)
+            self._sheet = self._workbook[self.STAKE_SHEET_NAME]  # type: XLSXWorksheet
+        else:
+            raise ValueError(f"Only .xls and .xlsx files are supported - a {self._file_ext} file was provided")
 
-    def _get_company_id(self, investment):
-        return investment[self.COMPANIES_ID_COL].value
+    def _get_company_id(self, investment: list) -> str:
+        return investment[self.COMPANIES_ID_COL].value.strip() if isinstance(investment[self.COMPANIES_ID_COL].value,
+                                                                             str) \
+            else investment[self.COMPANIES_ID_COL].value
 
-    def _get_stake_at_company(self, investment):
+    def _get_stake_at_company(self, investment: list) -> float:
         return investment[self.STAKE_AT_COMPANY_COL].value
 
-    def _get_currency(self, investment):
+    def _get_currency(self, investment: list) -> str:
         return investment[self.CURRENCY_COL].value
 
     @property
-    def _investments_rows(self):
-        return (self._sheet.row(index) for index in range(self.COMPANIES_START_ROW, self._sheet.nrows)
-                if self._get_company_id(self._sheet.row(index)))
+    def _investments_rows(self) -> Generator[list, None, None]:
+        if self._file_ext == ".xls":
+            return _get_rows_from_xls(self._sheet, self.COMPANIES_START_ROW, self._sheet.nrows, self._get_company_id)
+        elif self._file_ext == ".xlsx":
+            return _get_rows_from_xlsx(self._sheet, self.COMPANIES_START_ROW, self._sheet.max_row, self._get_company_id)
 
     @property
     def investments(self) -> Generator[CompanyInvestment, None, None]:
