@@ -2,13 +2,13 @@ from __future__ import annotations
 
 import os.path
 from abc import ABCMeta, abstractmethod
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Dict, Tuple
 
 import openpyxl
 import xlrd
 
 if TYPE_CHECKING:
-    from typing import Generator, Iterator, Callable, Union, Any
+    from typing import Generator, Callable, Union, Any
     from openpyxl.worksheet.worksheet import Worksheet as XLSXWorksheet
     from openpyxl.worksheet.worksheet import Worksheet as XLSXWorksheet
     from xlrd.sheet import Sheet as XLSWorksheet
@@ -32,7 +32,7 @@ class CompanyInvestment(object):
     def currency(self) -> str:
         return self._currency
 
-    def __sub__(self, other) -> CompanyInvestment:
+    def __sub__(self, other: CompanyInvestment) -> CompanyInvestment:
         if other.company_id != self.company_id:
             raise ValueError(f"Different ID's! {self.company_id} != {other.company_id}")
         elif other.currency != self.currency:
@@ -40,7 +40,7 @@ class CompanyInvestment(object):
 
         return CompanyInvestment(company_id=self.company_id, stake=self.stake - other.stake, currency=self.currency)
 
-    def __add__(self, other) -> CompanyInvestment:
+    def __add__(self, other: CompanyInvestment) -> CompanyInvestment:
         if other.company_id != self.company_id:
             raise ValueError(f"Different ID's! {self.company_id} != {other.company_id}")
         elif other.currency != self.currency:
@@ -48,8 +48,14 @@ class CompanyInvestment(object):
 
         return CompanyInvestment(company_id=self.company_id, stake=self.stake + other.stake, currency=self.currency)
 
+    def __eq__(self, other: CompanyInvestment) -> bool:
+        return self.company_id == other.company_id and self.currency == other.currency and self.stake == other.stake
+
     def __repr__(self) -> str:
         return f"<CompanyInvestment: {self._company_id}>"
+
+
+InvestmentPortfolio = Dict[Tuple[str, str], CompanyInvestment]
 
 
 def _get_rows_from_xls(
@@ -135,7 +141,7 @@ class ExcelParser(metaclass=ABCMeta):
                 self._investments_rows)
 
     @property
-    def summed_investments(self) -> Iterator[CompanyInvestment, None, None]:
+    def summed_investments(self) -> InvestmentPortfolio:
         companies_dict = {}
         for investment in self.investments:
             companies_dict[(investment.company_id, investment.currency)] = companies_dict.get(
@@ -143,4 +149,4 @@ class ExcelParser(metaclass=ABCMeta):
                 CompanyInvestment(
                     company_id=investment.company_id,
                     stake=0, currency=investment.currency)) + investment
-        return iter(companies_dict.values())
+        return companies_dict
