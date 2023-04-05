@@ -10,6 +10,7 @@ from quarterly_diff import compare_portfolios, CompanyInvestment
 
 # Explicit imports to satisfy Flake8
 from tkinter import Tk, Canvas, Entry, Text, Button, PhotoImage, Frame, LEFT, Scrollbar, VERTICAL, Y, RIGHT, messagebox
+from tkinter.ttk import Progressbar
 
 OUTPUT_PATH = Path(__file__).parent
 ASSETS_PATH = OUTPUT_PATH / Path(r"D:\Projects\Python\quarterly_diff_automation\build\assets\frame0")
@@ -31,6 +32,7 @@ def dict_to_excel(output_path, fieldnames, *args, force=True):
     for i, values_tuple in enumerate(args):
         sheet_name, values_iter = values_tuple
         ws = wb.create_sheet(title=sheet_name, index=i)
+        ws.sheet_view.rightToLeft = True
 
         # append headers
         ws.append(fieldnames)

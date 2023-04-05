@@ -4,10 +4,10 @@ from dataclasses import dataclass
 
 @dataclass(eq=True)
 class CompanyInvestment:
-    company_id: str
-    stake: float
-    currency: str = "שקל חדש"
     company_name: str = ""
+    company_id: str = ""
+    currency: str = "שקל חדש"
+    stake: float = 0.0
 
     def __sub__(self, other: CompanyInvestment) -> CompanyInvestment:
         if other.company_id != self.company_id:
