@@ -1,0 +1,3 @@
+[submodule "tkinterdnd2"]
+	path = tkinterdnd2
+	url = https://github.com/pmgagne/tkinterdnd2.git
