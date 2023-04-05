@@ -9,7 +9,8 @@ from tkinterdnd2.tkinterdnd2 import *
 from quarterly_diff import compare_portfolios, CompanyInvestment
 
 # Explicit imports to satisfy Flake8
-from tkinter import Tk, Canvas, Entry, Text, Button, PhotoImage, Frame, LEFT, Scrollbar, VERTICAL, Y, RIGHT, messagebox
+from tkinter import Tk, Canvas, Entry, Text, Button, PhotoImage, Frame, LEFT, Scrollbar, VERTICAL, Y, RIGHT, messagebox, \
+    HORIZONTAL
 from tkinter.ttk import Progressbar
 
 OUTPUT_PATH = Path(__file__).parent
@@ -51,15 +52,22 @@ def dict_to_excel(output_path, fieldnames, *args, force=True):
 
 
 def save_diff_result():
-    new_investments, updated_investments, deprecated_investments = compare_portfolios(prev_quarter_path,
-                                                                                      curr_quarter_path)
-    dict_to_excel("results.xlsx", [field.name for field in fields(CompanyInvestment)],
-                  ("new investments", (asdict(inv) for inv in new_investments.values())),
-                  ("updated investments", (asdict(inv) for inv in updated_investments.values())),
-                  ("deprecated investments", (asdict(inv) for inv in deprecated_investments.values())),
-                  force=True
-                  )
-    messagebox.showinfo("", "Done writing :)")
+    progress_bar.place(x=645, y=575)
+    progress_bar.start()
+    try:
+        new_investments, updated_investments, deprecated_investments = compare_portfolios(prev_quarter_path,
+                                                                                          curr_quarter_path)
+        dict_to_excel("results.xlsx", [field.name for field in fields(CompanyInvestment)],
+                      ("new investments", (asdict(inv) for inv in new_investments.values())),
+                      ("updated investments", (asdict(inv) for inv in updated_investments.values())),
+                      ("deprecated investments", (asdict(inv) for inv in deprecated_investments.values())),
+                      force=True
+                      )
+        progress_bar.stop()
+        progress_bar.grid_forget()
+        messagebox.showinfo("success", "Done writing :)")
+    except Exception as e:
+        messagebox.showinfo("error", f"Got error: {e}")
 
 
 window = TkinterDnD.Tk()
@@ -160,10 +168,18 @@ button_1 = Button(
 )
 button_1.place(
     x=667.0,
-    y=512.0,
+    y=450.0,
     width=107.0,
     height=107.0
 )
+
+progress_bar = Progressbar(
+    window,
+    orient=HORIZONTAL,
+    length=150,
+    mode='indeterminate'
+)
+
 # canvas.create_rectangle(
 #     0.0,
 #     625.0,
