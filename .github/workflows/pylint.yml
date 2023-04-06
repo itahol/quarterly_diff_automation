@@ -10,7 +10,8 @@ jobs:
         python-version: ["3.8"]
     steps:
     - uses: actions/checkout@v3
-      with: 'true'
+      with:
+        submodules: 'true'
 #    - name: Clone submodules
 #      run: |
 #        git submodule update --remote
