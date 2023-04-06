@@ -61,7 +61,12 @@ def save_diff_result():
     )
     progress_bar.place(x=645, y=575)
     progress_bar.tkraise()
-    progress_bar.start()
+
+    def change():
+        progress_bar.step(5)
+        window.after(25, change)
+
+    change()
     try:
         output_path = r"results.xlsx"
         new_investments, updated_investments, deprecated_investments = compare_portfolios(prev_quarter_path,
