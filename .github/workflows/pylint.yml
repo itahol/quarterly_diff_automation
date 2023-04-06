@@ -15,12 +15,12 @@ jobs:
       with:
         python-version: ${{ matrix.python-version }}
     - uses: actions/checkout@v3
-    - name: Install poetry
-      run: pipx install poetry
     - name: Create virtual environment
       run: python -m venv .venv
     - name: Activate virtual environment
       run: source .venv/bin/activate
+    - name: Install poetry
+      run: pipx install poetry
     - uses: actions/setup-python@v4
     - name: Install dependencies
       run: |
