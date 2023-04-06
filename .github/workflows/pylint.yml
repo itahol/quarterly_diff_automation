@@ -10,10 +10,10 @@ jobs:
         python-version: ["3.8"]
     steps:
     - uses: actions/checkout@v3
-      with:
-        submodules: recursive
+    - name: Clone submodules
       run: |
         git submodule update --remote
+        git pull --recurse-submodules
     - name: Set up Python ${{ matrix.python-version }}
       uses: actions/setup-python@v3
       with:
