@@ -6,7 +6,7 @@ from pathlib import Path
 from threading import Thread
 # Explicit imports to satisfy Flake8
 from tkinter import Canvas, Text, Button, PhotoImage, Frame, LEFT, messagebox, \
-    HORIZONTAL
+    HORIZONTAL, Toplevel, Label, font
 from tkinter.ttk import Progressbar
 
 import openpyxl
@@ -52,6 +52,31 @@ def dict_to_excel(output_path, fieldnames, *args, force=True):
     wb.save(output_path)
 
 
+def popup(title, message):
+    popup_window = Toplevel()
+    popup_window.title(title)
+
+    popup_label = Label(popup_window, text=message, font=font.Font(size=14), height=5)
+    popup_label.pack()
+
+    # Force the label to calculate its size based on the text
+    popup_label.update_idletasks()
+
+    # Get the requested width and height of the label
+    popup_width = popup_label.winfo_reqwidth()
+    popup_height = popup_label.winfo_reqheight()
+
+    # Center the popup at the center of the screen
+    screen_width = popup_window.winfo_screenwidth()
+    screen_height = popup_window.winfo_screenheight()
+    x = (screen_width - popup_width) // 2
+    y = (screen_height - popup_height) // 2
+    popup_window.geometry("{}x{}+{}+{}".format(popup_width, popup_height, x, y))
+
+    popup_window.grab_set()
+    popup_window.lift()
+
+
 def save_diff_result():
     progress_bar = Progressbar(
         window,
@@ -60,15 +85,9 @@ def save_diff_result():
         mode='indeterminate'
     )
     progress_bar.place(x=645, y=575)
-    progress_bar.tkraise()
-
-    def change():
-        progress_bar.step(5)
-        window.after(25, change)
-
-    change()
+    progress_bar.start()
     try:
-        output_path = r"results.xlsx"
+        output_path = os.path.abspath(r"results.xlsx")
         new_investments, updated_investments, deprecated_investments = compare_portfolios(prev_quarter_path,
                                                                                           curr_quarter_path)
         dict_to_excel(output_path, [field.name for field in fields(CompanyInvestment)],
@@ -77,9 +96,9 @@ def save_diff_result():
                       ("deprecated investments", (asdict(inv) for inv in deprecated_investments.values())),
                       force=True
                       )
-        messagebox.showinfo("success", f"Done :) Results saved at {output_path}")
+        popup(title="success", message=f"Done :) Results saved at {output_path}")
     except Exception as e:
-        messagebox.showerror("error", f"Got error: {e}")
+        popup(title="error", message=f"Got error: {e}")
     progress_bar.stop()
     progress_bar.destroy()
 
