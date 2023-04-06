@@ -63,15 +63,16 @@ def save_diff_result():
     progress_bar.tkraise()
     progress_bar.start()
     try:
+        output_path = r"results.xlsx"
         new_investments, updated_investments, deprecated_investments = compare_portfolios(prev_quarter_path,
                                                                                           curr_quarter_path)
-        dict_to_excel("results.xlsx", [field.name for field in fields(CompanyInvestment)],
+        dict_to_excel(output_path, [field.name for field in fields(CompanyInvestment)],
                       ("new investments", (asdict(inv) for inv in new_investments.values())),
                       ("updated investments", (asdict(inv) for inv in updated_investments.values())),
                       ("deprecated investments", (asdict(inv) for inv in deprecated_investments.values())),
                       force=True
                       )
-        messagebox.showinfo("success", "Done writing :)")
+        messagebox.showinfo("success", f"Done :) Results saved at {output_path}")
     except Exception as e:
         messagebox.showerror("error", f"Got error: {e}")
     progress_bar.stop()
