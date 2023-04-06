@@ -24,6 +24,7 @@ def relative_to_assets(path: str) -> Path:
 
 prev_quarter_path = ""
 curr_quarter_path = ""
+is_running = False
 
 
 def dict_to_excel(output_path, fieldnames, *args, force=True):
@@ -52,9 +53,10 @@ def dict_to_excel(output_path, fieldnames, *args, force=True):
     wb.save(output_path)
 
 
-def popup(title, message):
+def popup(message, title=None):
     popup_window = Toplevel()
-    popup_window.title(title)
+    if title:
+        popup_window.title(title)
 
     popup_label = Label(popup_window, text=message, font=font.Font(size=14), height=5)
     popup_label.pack()
@@ -78,6 +80,11 @@ def popup(title, message):
 
 
 def save_diff_result():
+    global is_running
+    if is_running:
+        popup(message="The program is already running!", title="Warning")
+        return
+    is_running = True
     progress_bar = Progressbar(
         window,
         orient=HORIZONTAL,
@@ -101,6 +108,7 @@ def save_diff_result():
         popup(title="error", message=f"Got error: {e}")
     progress_bar.stop()
     progress_bar.destroy()
+    is_running = False
 
 
 window = TkinterDnD.Tk()
