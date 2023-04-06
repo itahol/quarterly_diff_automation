@@ -53,7 +53,14 @@ def dict_to_excel(output_path, fieldnames, *args, force=True):
 
 
 def save_diff_result():
+    progress_bar = Progressbar(
+        window,
+        orient=HORIZONTAL,
+        length=150,
+        mode='indeterminate'
+    )
     progress_bar.place(x=645, y=575)
+    progress_bar.tkraise()
     progress_bar.start()
     try:
         new_investments, updated_investments, deprecated_investments = compare_portfolios(prev_quarter_path,
@@ -64,11 +71,11 @@ def save_diff_result():
                       ("deprecated investments", (asdict(inv) for inv in deprecated_investments.values())),
                       force=True
                       )
-        progress_bar.stop()
-        progress_bar.grid_forget()
         messagebox.showinfo("success", "Done writing :)")
     except Exception as e:
-        messagebox.showinfo("error", f"Got error: {e}")
+        messagebox.showerror("error", f"Got error: {e}")
+    progress_bar.stop()
+    progress_bar.destroy()
 
 
 window = TkinterDnD.Tk()
@@ -172,13 +179,6 @@ button_1.place(
     y=450.0,
     width=107.0,
     height=107.0
-)
-
-progress_bar = Progressbar(
-    window,
-    orient=HORIZONTAL,
-    length=150,
-    mode='indeterminate'
 )
 
 # canvas.create_rectangle(
