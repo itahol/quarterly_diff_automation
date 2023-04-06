@@ -24,6 +24,7 @@ jobs:
     - uses: actions/setup-python@v4
     - name: Install dependencies
       run: |
+        pip install ./tkinterdnd2
         python -m pip install --upgrade pip
         poetry install
         pip install pylint
