@@ -28,5 +28,5 @@ class CompanyInvestment:
                                  company_name=self.company_name)
 
     def __repr__(self) -> str:
-        return f"<CompanyInvestment: {self._company_id}>" if not self.company_name else \
+        return f"<CompanyInvestment: {self.company_id}>" if not self.company_name else \
             f"<CompanyInvestment: {self.company_name} - {self.company_id}>"
