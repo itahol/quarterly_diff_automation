@@ -28,3 +28,4 @@ jobs:
     - name: Analysing the code with pylint
       run: |
          pylint --recursive=y quarterly_diff/
+         mypy quarterly_diff
