@@ -1,5 +1,6 @@
 [MASTER]
 max-line-length=120
+ignore-patterns=hook-tkinterdnd2.py,build/
 disable=
     C0114, # missing-module-docstring
     missing-docstring,
