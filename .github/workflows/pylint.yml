@@ -10,21 +10,32 @@ jobs:
         python-version: ["3.8"]
     steps:
     - uses: actions/checkout@v3
+      with:
+        submodules: 'true'
+#    - name: Clone submodules
+#      run: |
+#        git submodule update --remote
+#    - run:
+#        git pull --recurse-submodules
     - name: Set up Python ${{ matrix.python-version }}
       uses: actions/setup-python@v3
       with:
         python-version: ${{ matrix.python-version }}
-    - uses: actions/checkout@v3
+#    - uses: actions/checkout@v3
+    - name: Create virtual environment
+      run: python -m venv .venv
+    - name: Activate virtual environment
+      run: source .venv/bin/activate
     - name: Install poetry
-      run: pipx install poetry
-    - name: restore or create a python virtualenv
-      uses: syphar/restore-virtualenv@v1
-    - run: source /home/runner/.virtualenvs/.venv/bin/activate
+      run: pip install poetry
     - uses: actions/setup-python@v4
     - name: Install dependencies
       run: |
+        pip install ./tkinterdnd2
         python -m pip install --upgrade pip
+        poetry install
         pip install pylint
     - name: Analysing the code with pylint
       run: |
          pylint --recursive=y quarterly_diff/
+         mypy quarterly_diff

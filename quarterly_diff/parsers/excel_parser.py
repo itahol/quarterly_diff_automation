@@ -10,27 +10,28 @@ import xlrd
 from quarterly_diff.parsers.company_investment import CompanyInvestment
 
 if TYPE_CHECKING:
-    from typing import Generator, Callable, Union, Any
+    from typing import Generator, Callable, Any, List
     from openpyxl.worksheet.worksheet import Worksheet as XLSXWorksheet
     from openpyxl.worksheet.worksheet import Worksheet as XLSXWorksheet
+    from openpyxl.cell import Cell as XLSXCell
     from xlrd.sheet import Sheet as XLSWorksheet
 
-    InvestmentPortfolio = Dict[Tuple[str, str], CompanyInvestment]
+InvestmentPortfolio = Dict[Tuple[str, str], CompanyInvestment]
 
 
 def _get_rows_from_xls(
         sheet: XLSWorksheet,
         start_index: int,
         end_index: int,
-        condition_func: Callable[[Union[list, tuple]], Any]) -> Generator[list, None, None]:
+        condition_func: Callable[[list], Any]) -> Generator[list, None, None]:
     return (sheet.row(index) for index in range(start_index, end_index) if condition_func(sheet.row(index)))
 
 
 def _get_rows_from_xlsx(sheet: XLSXWorksheet,
                         start_index: int,
                         end_index: int,
-                        condition_func: Callable[[Union[list, tuple]], Any]) -> Generator[list, None, None]:
-    return (row for row in sheet.iter_rows(min_row=start_index, max_row=end_index) if condition_func(row))
+                        condition_func: Callable[[list], Any]) -> Generator[List[XLSXCell], None, None]:
+    return (list(row) for row in sheet.iter_rows(min_row=start_index, max_row=end_index) if condition_func(list(row)))
 
 
 class ExcelParser(metaclass=ABCMeta):
@@ -73,17 +74,16 @@ class ExcelParser(metaclass=ABCMeta):
         self._file_ext = os.path.splitext(workbook_path)[-1]
         if self._file_ext == ".xls":
             self._workbook = xlrd.open_workbook(workbook_path)
-            self._sheet = self._workbook.sheet_by_name(self.STAKE_SHEET_NAME)  # type: XLSWorksheet
+            self._sheet: XLSWorksheet = self._workbook.sheet_by_name(self.STAKE_SHEET_NAME)
         elif self._file_ext == ".xlsx":
             self._workbook = openpyxl.load_workbook(workbook_path)
-            self._sheet = self._workbook[self.STAKE_SHEET_NAME]  # type: XLSXWorksheet
+            self._sheet: XLSXWorksheet = self._workbook[self.STAKE_SHEET_NAME]  # type: ignore[no-redef]
         else:
             raise ValueError(f"Only .xls and .xlsx files are supported - a {self._file_ext} file was provided")
 
     def _get_company_id(self, investment: list) -> str:
-        return investment[self.COMPANIES_ID_COL].value.strip() if isinstance(investment[self.COMPANIES_ID_COL].value,
-                                                                             str) \
-            else investment[self.COMPANIES_ID_COL].value
+        return investment[self.COMPANIES_ID_COL].value.strip() if \
+            isinstance(investment[self.COMPANIES_ID_COL].value, str) else investment[self.COMPANIES_ID_COL].value
 
     def _get_stake_at_company(self, investment: list) -> float:
         return investment[self.STAKE_AT_COMPANY_COL].value
@@ -112,7 +112,7 @@ class ExcelParser(metaclass=ABCMeta):
 
     @property
     def summed_investments(self) -> InvestmentPortfolio:
-        companies_dict = {}
+        companies_dict = {}  # type: Dict[Tuple[str, str], CompanyInvestment]
         for investment in self.investments:
             companies_dict[(investment.company_id, investment.currency)] = companies_dict.get(
                 (investment.company_id, investment.currency),

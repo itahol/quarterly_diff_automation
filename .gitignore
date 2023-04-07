@@ -1,2 +1,8 @@
 # Default ignored files
 /.idea/
+/dist/
+*.xls
+*.xlsx
+*.csv
+*.pyc
+__pycache__/
