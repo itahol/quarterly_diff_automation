@@ -10,6 +10,7 @@ from tkinter import Canvas, Text, Button, PhotoImage, Frame, LEFT, messagebox, \
 from tkinter.ttk import Progressbar
 
 import openpyxl
+from PIL import ImageTk, Image
 
 from quarterly_diff import compare_portfolios, CompanyInvestment
 from tkinterdnd2.tkinterdnd2 import *
@@ -112,6 +113,10 @@ def save_diff_result():
 
 
 window = TkinterDnD.Tk()
+window.title("Quarterly diff tool")
+icon = Image.open(r"assets/ivc.png")
+photo = ImageTk.PhotoImage(icon)
+window.wm_iconphoto(False, photo)
 
 window.geometry("1440x626")
 
