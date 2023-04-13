@@ -1,7 +1,7 @@
 # -*- mode: python ; coding: utf-8 -*-
 from PyInstaller.utils.hooks import collect_all
 
-datas = []
+datas = [('build\\assets', 'assets')]
 binaries = []
 hiddenimports = []
 tmp_ret = collect_all('tkinter')
@@ -48,5 +48,5 @@ exe = EXE(
     target_arch=None,
     codesign_identity=None,
     entitlements_file=None,
-    icon=['ivc.png'],
+    icon=['build\\assets\\ivc.png'],
 )
