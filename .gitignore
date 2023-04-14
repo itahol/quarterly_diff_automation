@@ -5,4 +5,13 @@
 *.xlsx
 *.csv
 *.pyc
+*.exe
+*.exe.manifest
+*.pkg
+*.toc
+*.zip
+*.html
+*.pyz
+*.ico
+*warn-*.txt
 __pycache__/

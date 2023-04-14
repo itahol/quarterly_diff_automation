@@ -82,8 +82,13 @@ class ExcelParser(metaclass=ABCMeta):
             raise ValueError(f"Only .xls and .xlsx files are supported - a {self._file_ext} file was provided")
 
     def _get_company_id(self, investment: list) -> str:
-        return investment[self.COMPANIES_ID_COL].value.strip() if \
-            isinstance(investment[self.COMPANIES_ID_COL].value, str) else investment[self.COMPANIES_ID_COL].value
+        cell_value = investment[self.COMPANIES_ID_COL].value
+        if isinstance(cell_value, str):
+            if "תא ללא תוכן" in cell_value:
+                cell_value = ""
+            else:
+                cell_value = cell_value.strip()
+        return cell_value
 
     def _get_stake_at_company(self, investment: list) -> float:
         return investment[self.STAKE_AT_COMPANY_COL].value
