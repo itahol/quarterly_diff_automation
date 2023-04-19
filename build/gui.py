@@ -14,7 +14,7 @@ import openpyxl
 from PIL import ImageTk, Image
 
 from quarterly_diff import compare_portfolios, CompanyInvestment
-from tkinterdnd2.tkinterdnd2 import *
+from tkinterdnd2 import *
 
 OUTPUT_PATH = Path(__file__).parent
 
