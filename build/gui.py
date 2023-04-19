@@ -111,8 +111,8 @@ def save_diff_result():
         new_investments, updated_investments, deprecated_investments = compare_portfolios(prev_quarter_path,
                                                                                           curr_quarter_path)
         dict_to_excel(output_path, [field.name for field in fields(CompanyInvestment)],
-                      ("new investments", (asdict(inv) for inv in new_investments.values())),
                       ("updated investments", (asdict(inv) for inv in updated_investments.values())),
+                      ("new investments", (asdict(inv) for inv in new_investments.values())),
                       ("deprecated investments", (asdict(inv) for inv in deprecated_investments.values())),
                       force=True
                       )
