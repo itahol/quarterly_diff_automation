@@ -12,8 +12,8 @@ from tkinter.ttk import Progressbar
 import openpyxl
 from PIL import ImageTk, Image
 
-from ..quarterly_diff import compare_portfolios, CompanyInvestment
-from ..tkinterdnd2.tkinterdnd2 import TkinterDnD
+from quarterly_diff import compare_portfolios, CompanyInvestment
+from tkinterdnd2.tkinterdnd2 import TkinterDnD, DND_FILES
 
 OUTPUT_PATH = Path(__file__).parent
 

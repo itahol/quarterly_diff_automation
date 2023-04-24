@@ -4,7 +4,7 @@ from pathlib import Path
 import pytest
 from _pytest.fixtures import FixtureRequest
 
-from quarterly_diff.parsers import ExcelParser, Menora, Harel, Altshuler, Phoenix
+from quarterly_diff.parsers import ExcelParser
 
 PORTFOLIOS_PATH = Path(os.path.dirname(os.path.realpath(__file__))) / "example_portfolios"
 
@@ -14,23 +14,23 @@ def _get_portfolio_path(company, quarter, year, extension="xlsx"):
 
 
 @pytest.fixture
-def menora_parser() -> Menora:
-    return Menora(_get_portfolio_path(company="menora", quarter=4, year=22))
+def menora_parser() -> ExcelParser:
+    return ExcelParser(_get_portfolio_path(company="menora", quarter=4, year=22))
 
 
 @pytest.fixture
-def harel_parser() -> Harel:
-    return Harel(_get_portfolio_path(company="harel", quarter=4, year=22))
+def harel_parser() -> ExcelParser:
+    return ExcelParser(_get_portfolio_path(company="harel", quarter=4, year=22))
 
 
 @pytest.fixture
-def altshuler_parser() -> Altshuler:
-    return Altshuler(_get_portfolio_path(company="altshuler", quarter=4, year=22))
+def altshuler_parser() -> ExcelParser:
+    return ExcelParser(_get_portfolio_path(company="altshuler", quarter=4, year=22))
 
 
 @pytest.fixture
-def phoenix_parser() -> Phoenix:
-    return Phoenix(_get_portfolio_path(company="phoenix", quarter=4, year=22, extension="xls"))
+def phoenix_parser() -> ExcelParser:
+    return ExcelParser(_get_portfolio_path(company="phoenix", quarter=4, year=22, extension="xls"))
 
 
 @pytest.mark.parametrize(

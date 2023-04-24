@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import os.path
-from abc import ABCMeta, abstractmethod
 from typing import TYPE_CHECKING, Dict, Tuple
 
 import openpyxl
@@ -19,43 +18,37 @@ if TYPE_CHECKING:
 InvestmentPortfolio = Dict[Tuple[str, str], CompanyInvestment]
 
 
-
-
-class ExcelParser(metaclass=ABCMeta):
+class ExcelParser:
     @property
-    @abstractmethod
-    def COMPANIES_START_ROW(self):  # pylint: disable=C0103
-        pass
+    def HEADERS_ROW(self):
+        return self._sheet[self.HEADERS_ROW_IDX]
 
     @property
-    @abstractmethod
     def COMPANY_NAME_COL(self):  # pylint: disable=C0103
-        pass
+        return self._find_value_index(self.HEADERS_ROW, "שם המנפיק/שם נייר ערך")
 
     @property
-    @abstractmethod
     def COMPANIES_ID_COL(self):  # pylint: disable=C0103
-        pass
+        return self._find_value_index(self.HEADERS_ROW, "מספר מנפיק")
 
     @property
-    @abstractmethod
     def STAKE_AT_COMPANY_COL(self):  # pylint: disable=C0103
-        pass
+        return self._find_value_index(self.HEADERS_ROW, "ערך נקוב")
 
     @property
-    @abstractmethod
     def CURRENCY_COL(self):  # pylint: disable=C0103
-        pass
+        return self._find_value_index(self.HEADERS_ROW, "סוג מטבע")
 
     @property
-    @abstractmethod
-    def STAKE_SHEET_NAME(self):  # pylint: disable=C0103
-        pass
+    def HEADERS_ROW_IDX(self):
+        return 7 if self._file_ext == ".xls" else 8
 
     EXT_TO_LIB = {
         ".xlsx": openpyxl,
         ".xls": xlrd,
     }
+    COMPANIES_START_ROW_IDX = 12
+    STAKE_SHEET_NAME = "לא סחיר - מניות"
 
     def __init__(self, workbook_path):
         self._file_ext = os.path.splitext(workbook_path)[-1]
@@ -67,6 +60,13 @@ class ExcelParser(metaclass=ABCMeta):
             self._sheet: XLSXWorksheet = self._workbook[self.STAKE_SHEET_NAME]  # type: ignore[no-redef]
         else:
             raise ValueError(f"Only .xls and .xlsx files are supported - a {self._file_ext} file was provided")
+
+    @staticmethod
+    def _find_value_index(row, value):
+        for i, cell in enumerate(row):
+            if cell.value and cell.value.startswith(value):
+                return i
+        raise ValueError(f"Value {value} not found in row")
 
     @staticmethod
     def _get_rows_from_xls(
@@ -105,9 +105,9 @@ class ExcelParser(metaclass=ABCMeta):
     @property
     def _investments_rows(self) -> Generator[list, None, None]:
         if self._file_ext == ".xls":
-            return self._get_rows_from_xls(self._sheet, self.COMPANIES_START_ROW, self._sheet.nrows, self._get_company_id)  # type: ignore
+            return self._get_rows_from_xls(self._sheet, self.COMPANIES_START_ROW_IDX, self._sheet.nrows, self._get_company_id)  # type: ignore
         if self._file_ext == ".xlsx":
-            return self._get_rows_from_xlsx(self._sheet, self.COMPANIES_START_ROW, self._sheet.max_row, self._get_company_id)  # type: ignore
+            return self._get_rows_from_xlsx(self._sheet, self.COMPANIES_START_ROW_IDX, self._sheet.max_row, self._get_company_id)  # type: ignore
         raise ValueError(f"No defined way to extract rows from {self._file_ext} file")
 
     @property

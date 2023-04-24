@@ -1,12 +1,12 @@
 from typing import Tuple
 
-from .parsers import Phoenix, InvestmentPortfolio
+from .parsers import ExcelParser, InvestmentPortfolio
 
 
 def compare_portfolios(prev_quarter_path: str, quarter_path: str) -> Tuple[
         InvestmentPortfolio, InvestmentPortfolio, InvestmentPortfolio]:
-    prev_quarter = Phoenix(prev_quarter_path)  # TODO use matching parsers
-    quarter = Phoenix(quarter_path)
+    prev_quarter = ExcelParser(prev_quarter_path)  # TODO use matching parsers
+    quarter = ExcelParser(quarter_path)
 
     new_investments = {}  # type: InvestmentPortfolio
     updated_investments = {}  # type: InvestmentPortfolio
