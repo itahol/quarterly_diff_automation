@@ -6,15 +6,14 @@ from dataclasses import asdict, fields
 from pathlib import Path
 from threading import Thread
 # Explicit imports to satisfy Flake8
-from tkinter import Canvas, Text, Button, PhotoImage, Frame, LEFT, messagebox, \
-    HORIZONTAL, Toplevel, Label, font
+from tkinter import Canvas, Text, Button, PhotoImage, Frame, LEFT, HORIZONTAL, Toplevel, Label, font
 from tkinter.ttk import Progressbar
 
 import openpyxl
 from PIL import ImageTk, Image
 
-from quarterly_diff import compare_portfolios, CompanyInvestment
-from tkinterdnd2 import *
+from ..quarterly_diff import compare_portfolios, CompanyInvestment
+from ..tkinterdnd2.tkinterdnd2 import TkinterDnD
 
 OUTPUT_PATH = Path(__file__).parent
 
