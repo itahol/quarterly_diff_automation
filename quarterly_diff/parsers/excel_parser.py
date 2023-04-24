@@ -19,19 +19,6 @@ if TYPE_CHECKING:
 InvestmentPortfolio = Dict[Tuple[str, str], CompanyInvestment]
 
 
-def _get_rows_from_xls(
-        sheet: XLSWorksheet,
-        start_index: int,
-        end_index: int,
-        condition_func: Callable[[list], Any]) -> Generator[list, None, None]:
-    return (sheet.row(index) for index in range(start_index, end_index) if condition_func(sheet.row(index)))
-
-
-def _get_rows_from_xlsx(sheet: XLSXWorksheet,
-                        start_index: int,
-                        end_index: int,
-                        condition_func: Callable[[list], Any]) -> Generator[List[XLSXCell], None, None]:
-    return (list(row) for row in sheet.iter_rows(min_row=start_index, max_row=end_index) if condition_func(list(row)))
 
 
 class ExcelParser(metaclass=ABCMeta):
@@ -81,6 +68,22 @@ class ExcelParser(metaclass=ABCMeta):
         else:
             raise ValueError(f"Only .xls and .xlsx files are supported - a {self._file_ext} file was provided")
 
+    @staticmethod
+    def _get_rows_from_xls(
+            sheet: XLSWorksheet,
+            start_index: int,
+            end_index: int,
+            condition_func: Callable[[list], Any]) -> Generator[list, None, None]:
+        return (sheet.row(index) for index in range(start_index, end_index) if condition_func(sheet.row(index)))
+
+    @staticmethod
+    def _get_rows_from_xlsx(sheet: XLSXWorksheet,
+                            start_index: int,
+                            end_index: int,
+                            condition_func: Callable[[list], Any]) -> Generator[List[XLSXCell], None, None]:
+        return (list(row) for row in sheet.iter_rows(min_row=start_index, max_row=end_index) if
+                condition_func(list(row)))
+
     def _get_company_id(self, investment: list) -> str:
         cell_value = investment[self.COMPANIES_ID_COL].value
         if isinstance(cell_value, str):
@@ -102,9 +105,9 @@ class ExcelParser(metaclass=ABCMeta):
     @property
     def _investments_rows(self) -> Generator[list, None, None]:
         if self._file_ext == ".xls":
-            return _get_rows_from_xls(self._sheet, self.COMPANIES_START_ROW, self._sheet.nrows, self._get_company_id)
+            return self._get_rows_from_xls(self._sheet, self.COMPANIES_START_ROW, self._sheet.nrows, self._get_company_id)  # type: ignore
         if self._file_ext == ".xlsx":
-            return _get_rows_from_xlsx(self._sheet, self.COMPANIES_START_ROW, self._sheet.max_row, self._get_company_id)
+            return self._get_rows_from_xlsx(self._sheet, self.COMPANIES_START_ROW, self._sheet.max_row, self._get_company_id)  # type: ignore
         raise ValueError(f"No defined way to extract rows from {self._file_ext} file")
 
     @property
