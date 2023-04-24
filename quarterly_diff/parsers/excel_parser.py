@@ -20,7 +20,11 @@ InvestmentPortfolio = Dict[Tuple[str, str], CompanyInvestment]
 
 class ExcelParser:
     @property
-    def HEADERS_ROW(self):
+    def HEADERS_ROW_IDX(self):  # pylint: disable=C0103
+        return 7 if self._file_ext == ".xls" else 8
+
+    @property
+    def HEADERS_ROW(self):  # pylint: disable=C0103
         return self._sheet[self.HEADERS_ROW_IDX]
 
     @property
@@ -38,10 +42,6 @@ class ExcelParser:
     @property
     def CURRENCY_COL(self):  # pylint: disable=C0103
         return self._find_value_index(self.HEADERS_ROW, "סוג מטבע")
-
-    @property
-    def HEADERS_ROW_IDX(self):
-        return 7 if self._file_ext == ".xls" else 8
 
     EXT_TO_LIB = {
         ".xlsx": openpyxl,
@@ -105,9 +105,12 @@ class ExcelParser:
     @property
     def _investments_rows(self) -> Generator[list, None, None]:
         if self._file_ext == ".xls":
-            return self._get_rows_from_xls(self._sheet, self.COMPANIES_START_ROW_IDX, self._sheet.nrows, self._get_company_id)  # type: ignore
+            return self._get_rows_from_xls(self._sheet, self.COMPANIES_START_ROW_IDX, self._sheet.nrows,  # type: ignore
+                                           self._get_company_id)
         if self._file_ext == ".xlsx":
-            return self._get_rows_from_xlsx(self._sheet, self.COMPANIES_START_ROW_IDX, self._sheet.max_row, self._get_company_id)  # type: ignore
+            return self._get_rows_from_xlsx(self._sheet, self.COMPANIES_START_ROW_IDX, self._sheet.max_row,
+                                            # type: ignore
+                                            self._get_company_id)
         raise ValueError(f"No defined way to extract rows from {self._file_ext} file")
 
     @property
