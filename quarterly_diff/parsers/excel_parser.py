@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import os.path
 from typing import TYPE_CHECKING, Dict, Tuple
+from functools import cached_property
 
 import openpyxl
 import xlrd
@@ -19,29 +20,33 @@ InvestmentPortfolio = Dict[Tuple[str, str], CompanyInvestment]
 
 
 class ExcelParser:
-    @property
-    def HEADERS_ROW_IDX(self):  # pylint: disable=C0103
+    @cached_property
+    def headers_row_idx(self):
         return 7 if self._file_ext == ".xls" else 8
 
-    @property
-    def HEADERS_ROW(self):  # pylint: disable=C0103
-        return self._sheet[self.HEADERS_ROW_IDX]
+    @cached_property
+    def headers_row(self):
+        return self._sheet[self.headers_row_idx]
 
-    @property
-    def COMPANY_NAME_COL(self):  # pylint: disable=C0103
-        return self._find_value_index(self.HEADERS_ROW, "שם המנפיק/שם נייר ערך")
+    @cached_property
+    def company_name_col_idx(self):
+        return self._find_value_index(self.headers_row, "שם המנפיק/שם נייר ערך")
 
-    @property
-    def COMPANIES_ID_COL(self):  # pylint: disable=C0103
-        return self._find_value_index(self.HEADERS_ROW, "מספר מנפיק")
+    @cached_property
+    def company_id_col_idx(self):
+        return self._find_value_index(self.headers_row, "מספר מנפיק")
 
-    @property
-    def STAKE_AT_COMPANY_COL(self):  # pylint: disable=C0103
-        return self._find_value_index(self.HEADERS_ROW, "ערך נקוב")
+    @cached_property
+    def company_category_col_idx(self):
+        return self._find_value_index(self.headers_row, "ענף מסחר")
 
-    @property
-    def CURRENCY_COL(self):  # pylint: disable=C0103
-        return self._find_value_index(self.HEADERS_ROW, "סוג מטבע")
+    @cached_property
+    def stake_at_company_col_idx(self):
+        return self._find_value_index(self.headers_row, "ערך נקוב")
+
+    @cached_property
+    def currency_col(self):
+        return self._find_value_index(self.headers_row, "סוג מטבע")
 
     EXT_TO_LIB = {
         ".xlsx": openpyxl,
@@ -85,7 +90,7 @@ class ExcelParser:
                 condition_func(list(row)))
 
     def _get_company_id(self, investment: list) -> str:
-        cell_value = investment[self.COMPANIES_ID_COL].value
+        cell_value = investment[self.company_id_col_idx].value
         if isinstance(cell_value, str):
             if "תא ללא תוכן" in cell_value:
                 cell_value = ""
@@ -94,13 +99,16 @@ class ExcelParser:
         return cell_value
 
     def _get_stake_at_company(self, investment: list) -> float:
-        return investment[self.STAKE_AT_COMPANY_COL].value
+        return investment[self.stake_at_company_col_idx].value
 
     def _get_currency(self, investment: list) -> str:
-        return investment[self.CURRENCY_COL].value
+        return investment[self.currency_col].value
 
     def _get_company_name(self, investment: list) -> str:
-        return investment[self.COMPANY_NAME_COL].value
+        return investment[self.company_name_col_idx].value
+
+    def _get_company_category(self, investment: list) -> str:
+        return investment[self.company_category_col_idx].value
 
     @property
     def _investments_rows(self) -> Generator[list, None, None]:
@@ -115,21 +123,25 @@ class ExcelParser:
 
     @property
     def investments(self) -> Generator[CompanyInvestment, None, None]:
-        return (CompanyInvestment(company_id=self._get_company_id(investment),
+        return (CompanyInvestment(issuer_id=self._get_company_id(investment),
                                   stake=self._get_stake_at_company(investment),
                                   currency=self._get_currency(investment),
-                                  company_name=self._get_company_name(investment)) for investment in
+                                  name=self._get_company_name(investment),
+                                  category=self._get_company_category(investment)) for investment in
                 self._investments_rows)
 
     @property
     def summed_investments(self) -> InvestmentPortfolio:
         companies_dict = {}  # type: Dict[Tuple[str, str], CompanyInvestment]
         for investment in self.investments:
-            companies_dict[(investment.company_id, investment.currency)] = companies_dict.get(
-                (investment.company_id, investment.currency),
+            companies_dict[(investment.issuer_id, investment.currency)] = companies_dict.get(
+                (investment.issuer_id, investment.currency),
                 CompanyInvestment(
-                    company_id=investment.company_id,
+                    issuer_id=investment.issuer_id,
                     stake=0,
                     currency=investment.currency,
-                    company_name=investment.company_name)) + investment
+                    name=investment.name,
+                    category=investment.category,
+                )
+            ) + investment
         return companies_dict
