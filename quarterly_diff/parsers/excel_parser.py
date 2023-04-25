@@ -32,7 +32,7 @@ class ExcelParser:
         return self._find_value_index(self.headers_row, "שם המנפיק/שם נייר ערך")
 
     @property
-    def companies_id_col_idx(self):
+    def company_id_col_idx(self):
         return self._find_value_index(self.headers_row, "מספר מנפיק")
 
     @property
@@ -85,7 +85,7 @@ class ExcelParser:
                 condition_func(list(row)))
 
     def _get_company_id(self, investment: list) -> str:
-        cell_value = investment[self.companies_id_col_idx].value
+        cell_value = investment[self.company_id_col_idx].value
         if isinstance(cell_value, str):
             if "תא ללא תוכן" in cell_value:
                 cell_value = ""
