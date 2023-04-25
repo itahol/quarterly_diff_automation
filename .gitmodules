@@ -1,4 +1,4 @@
 [submodule "tkinterdnd2"]
 	path = tkinterdnd2
-	url = https://github.com/pmgagne/tkinterdnd2.git
+	url = https://github.com/itahol/tkinterdnd2.git
 	branch = master
