@@ -36,6 +36,10 @@ class ExcelParser:
         return self._find_value_index(self.headers_row, "מספר מנפיק")
 
     @property
+    def company_category_col_idx(self):
+        return self._find_value_index(self.headers_row, "ענף מסחר")
+
+    @property
     def stake_at_company_col_idx(self):
         return self._find_value_index(self.headers_row, "ערך נקוב")
 
@@ -102,6 +106,9 @@ class ExcelParser:
     def _get_company_name(self, investment: list) -> str:
         return investment[self.company_name_col_idx].value
 
+    def _get_company_category(self, investment: list) -> str:
+        return investment[self.company_category_col_idx].value
+
     @property
     def _investments_rows(self) -> Generator[list, None, None]:
         if self._file_ext == ".xls":
@@ -118,7 +125,8 @@ class ExcelParser:
         return (CompanyInvestment(id=self._get_company_id(investment),
                                   stake=self._get_stake_at_company(investment),
                                   currency=self._get_currency(investment),
-                                  name=self._get_company_name(investment)) for investment in
+                                  name=self._get_company_name(investment),
+                                  category=self._get_company_category(investment)) for investment in
                 self._investments_rows)
 
     @property
@@ -131,5 +139,8 @@ class ExcelParser:
                     id=investment.id,
                     stake=0,
                     currency=investment.currency,
-                    name=investment.name)) + investment
+                    name=investment.name,
+                    category=investment.category,
+                )
+            ) + investment
         return companies_dict
