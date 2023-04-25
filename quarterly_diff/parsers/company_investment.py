@@ -1,10 +1,10 @@
 from __future__ import annotations
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 
 
 @dataclass(eq=True)
 class CompanyInvestment:
-    company_name: str = ""
+    company_name: str = field(compare=False)
     company_id: str = ""
     currency: str = "שקל חדש"
     stake: float = 0.0

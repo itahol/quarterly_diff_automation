@@ -6,15 +6,14 @@ from dataclasses import asdict, fields
 from pathlib import Path
 from threading import Thread
 # Explicit imports to satisfy Flake8
-from tkinter import Canvas, Text, Button, PhotoImage, Frame, LEFT, messagebox, \
-    HORIZONTAL, Toplevel, Label, font
+from tkinter import Canvas, Text, Button, PhotoImage, Frame, LEFT, HORIZONTAL, Toplevel, Label, font
 from tkinter.ttk import Progressbar
 
 import openpyxl
 from PIL import ImageTk, Image
 
 from quarterly_diff import compare_portfolios, CompanyInvestment
-from tkinterdnd2.tkinterdnd2 import *
+from tkinterdnd2.tkinterdnd2 import TkinterDnD, DND_FILES
 
 OUTPUT_PATH = Path(__file__).parent
 
@@ -111,8 +110,8 @@ def save_diff_result():
         new_investments, updated_investments, deprecated_investments = compare_portfolios(prev_quarter_path,
                                                                                           curr_quarter_path)
         dict_to_excel(output_path, [field.name for field in fields(CompanyInvestment)],
-                      ("new investments", (asdict(inv) for inv in new_investments.values())),
                       ("updated investments", (asdict(inv) for inv in updated_investments.values())),
+                      ("new investments", (asdict(inv) for inv in new_investments.values())),
                       ("deprecated investments", (asdict(inv) for inv in deprecated_investments.values())),
                       force=True
                       )

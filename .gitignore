@@ -1,8 +1,6 @@
 # Default ignored files
 /.idea/
 /dist/
-*.xls
-*.xlsx
 *.csv
 *.pyc
 *.exe
