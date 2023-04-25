@@ -20,28 +20,28 @@ InvestmentPortfolio = Dict[Tuple[str, str], CompanyInvestment]
 
 class ExcelParser:
     @property
-    def HEADERS_ROW_IDX(self):  # pylint: disable=C0103
+    def headers_row_idx(self):
         return 7 if self._file_ext == ".xls" else 8
 
     @property
-    def HEADERS_ROW(self):  # pylint: disable=C0103
-        return self._sheet[self.HEADERS_ROW_IDX]
+    def headers_row(self):
+        return self._sheet[self.headers_row_idx]
 
     @property
-    def COMPANY_NAME_COL(self):  # pylint: disable=C0103
-        return self._find_value_index(self.HEADERS_ROW, "שם המנפיק/שם נייר ערך")
+    def company_name_col_idx(self):
+        return self._find_value_index(self.headers_row, "שם המנפיק/שם נייר ערך")
 
     @property
-    def COMPANIES_ID_COL(self):  # pylint: disable=C0103
-        return self._find_value_index(self.HEADERS_ROW, "מספר מנפיק")
+    def companies_id_col_idx(self):
+        return self._find_value_index(self.headers_row, "מספר מנפיק")
 
     @property
-    def STAKE_AT_COMPANY_COL(self):  # pylint: disable=C0103
-        return self._find_value_index(self.HEADERS_ROW, "ערך נקוב")
+    def stake_at_company_col_idx(self):
+        return self._find_value_index(self.headers_row, "ערך נקוב")
 
     @property
-    def CURRENCY_COL(self):  # pylint: disable=C0103
-        return self._find_value_index(self.HEADERS_ROW, "סוג מטבע")
+    def currency_col(self):
+        return self._find_value_index(self.headers_row, "סוג מטבע")
 
     EXT_TO_LIB = {
         ".xlsx": openpyxl,
@@ -85,7 +85,7 @@ class ExcelParser:
                 condition_func(list(row)))
 
     def _get_company_id(self, investment: list) -> str:
-        cell_value = investment[self.COMPANIES_ID_COL].value
+        cell_value = investment[self.companies_id_col_idx].value
         if isinstance(cell_value, str):
             if "תא ללא תוכן" in cell_value:
                 cell_value = ""
@@ -94,13 +94,13 @@ class ExcelParser:
         return cell_value
 
     def _get_stake_at_company(self, investment: list) -> float:
-        return investment[self.STAKE_AT_COMPANY_COL].value
+        return investment[self.stake_at_company_col_idx].value
 
     def _get_currency(self, investment: list) -> str:
-        return investment[self.CURRENCY_COL].value
+        return investment[self.currency_col].value
 
     def _get_company_name(self, investment: list) -> str:
-        return investment[self.COMPANY_NAME_COL].value
+        return investment[self.company_name_col_idx].value
 
     @property
     def _investments_rows(self) -> Generator[list, None, None]:
