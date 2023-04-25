@@ -123,7 +123,7 @@ class ExcelParser:
 
     @property
     def investments(self) -> Generator[CompanyInvestment, None, None]:
-        return (CompanyInvestment(id=self._get_company_id(investment),
+        return (CompanyInvestment(issuer_id=self._get_company_id(investment),
                                   stake=self._get_stake_at_company(investment),
                                   currency=self._get_currency(investment),
                                   name=self._get_company_name(investment),
@@ -134,10 +134,10 @@ class ExcelParser:
     def summed_investments(self) -> InvestmentPortfolio:
         companies_dict = {}  # type: Dict[Tuple[str, str], CompanyInvestment]
         for investment in self.investments:
-            companies_dict[(investment.id, investment.currency)] = companies_dict.get(
-                (investment.id, investment.currency),
+            companies_dict[(investment.issuer_id, investment.currency)] = companies_dict.get(
+                (investment.issuer_id, investment.currency),
                 CompanyInvestment(
-                    id=investment.id,
+                    issuer_id=investment.issuer_id,
                     stake=0,
                     currency=investment.currency,
                     name=investment.name,
