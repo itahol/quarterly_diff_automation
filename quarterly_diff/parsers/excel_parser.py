@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import os.path
 from typing import TYPE_CHECKING, Dict, Tuple
+from functools import cached_property
 
 import openpyxl
 import xlrd
@@ -19,31 +20,31 @@ InvestmentPortfolio = Dict[Tuple[str, str], CompanyInvestment]
 
 
 class ExcelParser:
-    @property
+    @cached_property
     def headers_row_idx(self):
         return 7 if self._file_ext == ".xls" else 8
 
-    @property
+    @cached_property
     def headers_row(self):
         return self._sheet[self.headers_row_idx]
 
-    @property
+    @cached_property
     def company_name_col_idx(self):
         return self._find_value_index(self.headers_row, "שם המנפיק/שם נייר ערך")
 
-    @property
+    @cached_property
     def company_id_col_idx(self):
         return self._find_value_index(self.headers_row, "מספר מנפיק")
 
-    @property
+    @cached_property
     def company_category_col_idx(self):
         return self._find_value_index(self.headers_row, "ענף מסחר")
 
-    @property
+    @cached_property
     def stake_at_company_col_idx(self):
         return self._find_value_index(self.headers_row, "ערך נקוב")
 
-    @property
+    @cached_property
     def currency_col(self):
         return self._find_value_index(self.headers_row, "סוג מטבע")
 
