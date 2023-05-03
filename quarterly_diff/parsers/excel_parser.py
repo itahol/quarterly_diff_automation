@@ -22,7 +22,8 @@ InvestmentPortfolio = Dict[Tuple[str, str], CompanyInvestment]
 class ExcelParser:
     @cached_property
     def headers_row_idx(self):
-        return 7 if self._file_ext == ".xls" else 8
+        raw_index = self._find_value_row_index("שם המנפיק/שם נייר ערך")
+        return raw_index if self._file_ext == ".xls" else raw_index + 1
 
     @cached_property
     def headers_row(self):
@@ -88,6 +89,24 @@ class ExcelParser:
                             condition_func: Callable[[list], Any]) -> Generator[List[XLSXCell], None, None]:
         return (list(row) for row in sheet.iter_rows(min_row=start_index, max_row=end_index) if
                 condition_func(list(row)))
+
+    def _find_value_row_index(self, value):
+        if self._file_ext == ".xls":
+            rows_iter = (self._sheet.row_values(index) for index in range(self._sheet.nrows))
+        else:
+            rows_iter = self._sheet.iter_rows(values_only=True)
+
+        for index, row in enumerate(rows_iter):
+            if value in row:
+                return index
+        raise ValueError(f"Value {value} not found in sheet!")
+        # if self._file_ext == ".xls":
+        #     for row in range(0, self._sheet.nrows):
+        #         if value in self._sheet.row_values(row):
+        #             return value
+        #     raise ValueError(f"Value {value} not found in sheet!")
+        # else:
+
 
     def _get_company_id(self, investment: list) -> str:
         cell_value = investment[self.company_id_col_idx].value

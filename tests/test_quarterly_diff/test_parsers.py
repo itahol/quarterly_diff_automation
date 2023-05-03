@@ -33,6 +33,16 @@ def phoenix_parser() -> ExcelParser:
     return ExcelParser(_get_portfolio_path(company="phoenix", quarter=4, year=22, extension="xls"))
 
 
+@pytest.fixture
+def clal_gemel_parser() -> ExcelParser:
+    return ExcelParser(_get_portfolio_path(company="clal_gemel", quarter=4, year=22))
+
+
+@pytest.fixture
+def clal_pension_parser() -> ExcelParser:
+    return ExcelParser(_get_portfolio_path(company="clal_pension", quarter=4, year=22))
+
+
 @pytest.mark.parametrize(
     ("parser", "investments_amount"),
     [
@@ -40,6 +50,8 @@ def phoenix_parser() -> ExcelParser:
         ("harel_parser", 41),
         ("phoenix_parser", 38),
         ("altshuler_parser", 84),
+        ("clal_gemel_parser", 42),
+        ("clal_pension_parser", 47),
     ]
 )
 def test_investments_amount(parser: str, investments_amount: int, request: FixtureRequest):
