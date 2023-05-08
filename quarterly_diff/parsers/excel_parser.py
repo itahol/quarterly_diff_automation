@@ -42,7 +42,7 @@ class ExcelParser:
         return self._find_value_index(self.headers_row, "ענף מסחר")
 
     @cached_property
-    def stake_at_company_idx(self):
+    def nominal_value_idx(self):
         return self._find_value_index(self.headers_row, "ערך נקוב")
 
     @cached_property
@@ -110,8 +110,8 @@ class ExcelParser:
                 cell_value = cell_value.strip()
         return cell_value
 
-    def _get_stake_at_company(self, investment: list) -> float:
-        return investment[self.stake_at_company_idx].value
+    def _get_nominal_value(self, investment: list) -> float:
+        return investment[self.nominal_value_idx].value
 
     def _get_currency(self, investment: list) -> str:
         return investment[self.currency_col].value
@@ -136,7 +136,7 @@ class ExcelParser:
     @property
     def investments(self) -> Generator[CompanyInvestment, None, None]:
         return (CompanyInvestment(issuer_id=self._get_company_id(investment),
-                                  stake=self._get_stake_at_company(investment),
+                                  nominal_value=self._get_nominal_value(investment),
                                   currency=self._get_currency(investment),
                                   name=self._get_company_name(investment),
                                   category=self._get_company_category(investment)) for investment in
@@ -150,7 +150,7 @@ class ExcelParser:
                 (investment.issuer_id, investment.currency),
                 CompanyInvestment(
                     issuer_id=investment.issuer_id,
-                    stake=0,
+                    nominal_value=0,
                     currency=investment.currency,
                     name=investment.name,
                     category=investment.category,
