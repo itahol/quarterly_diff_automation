@@ -22,7 +22,7 @@ InvestmentPortfolio = Dict[Tuple[str, str], CompanyInvestment]
 class ExcelParser:
     @cached_property
     def headers_row_idx(self):
-        row_index = self._find_value_row_index("שם המנפיק/שם נייר ערך", 'שם נ"ע')
+        row_index = self._find_value_row_index("שם המנפיק/שם נייר ערך", "שם המנפיק / שם נייר ערך" , 'שם נ"ע')
         return row_index if self._file_ext == ".xls" else row_index + 1
 
     @cached_property
@@ -31,7 +31,7 @@ class ExcelParser:
 
     @cached_property
     def company_name_col_idx(self):
-        return self._find_value_index(self.headers_row, "שם המנפיק/שם נייר ערך", 'שם נ"ע')
+        return self._find_value_index(self.headers_row, "שם המנפיק/שם נייר ערך", "שם המנפיק / שם נייר ערך",  'שם נ"ע')
 
     @cached_property
     def company_id_col_idx(self):
