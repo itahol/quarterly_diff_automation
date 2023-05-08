@@ -22,8 +22,8 @@ InvestmentPortfolio = Dict[Tuple[str, str], CompanyInvestment]
 class ExcelParser:
     @cached_property
     def headers_row_idx(self):
-        raw_index = self._find_value_row_index("שם המנפיק/שם נייר ערך")
-        return raw_index if self._file_ext == ".xls" else raw_index + 1
+        row_index = self._find_value_row_index("שם המנפיק/שם נייר ערך", 'שם נ"ע')
+        return row_index if self._file_ext == ".xls" else row_index + 1
 
     @cached_property
     def headers_row(self):
@@ -31,7 +31,7 @@ class ExcelParser:
 
     @cached_property
     def company_name_col_idx(self):
-        return self._find_value_index(self.headers_row, "שם המנפיק/שם נייר ערך")
+        return self._find_value_index(self.headers_row, "שם המנפיק/שם נייר ערך", 'שם נ"ע')
 
     @cached_property
     def company_id_col_idx(self):
@@ -68,11 +68,22 @@ class ExcelParser:
             raise ValueError(f"Only .xls and .xlsx files are supported - a {self._file_ext} file was provided")
 
     @staticmethod
-    def _find_value_index(row, value):
+    def _find_value_index(row, *values):
         for i, cell in enumerate(row):
-            if cell.value and cell.value.startswith(value):
+            if cell.value and any(map(lambda value: cell.value.startswith(value), values)):
                 return i
-        raise ValueError(f"Value {value} not found in row")
+        raise ValueError(f"None of the values {values} were found in row")
+
+    def _find_value_row_index(self, *values):
+        if self._file_ext == ".xls":
+            rows_iter = (self._sheet.row_values(index) for index in range(self._sheet.nrows))
+        else:
+            rows_iter = self._sheet.iter_rows(values_only=True)
+
+        for index, row in enumerate(rows_iter):
+            if any(value in row for value in values):
+                return index
+        raise ValueError(f"None of the values {values} were found in sheet")
 
     @staticmethod
     def _get_rows_from_xls(
@@ -89,17 +100,6 @@ class ExcelParser:
                             condition_func: Callable[[list], Any]) -> Generator[List[XLSXCell], None, None]:
         return (list(row) for row in sheet.iter_rows(min_row=start_index, max_row=end_index) if
                 condition_func(list(row)))
-
-    def _find_value_row_index(self, value):
-        if self._file_ext == ".xls":
-            rows_iter = (self._sheet.row_values(index) for index in range(self._sheet.nrows))
-        else:
-            rows_iter = self._sheet.iter_rows(values_only=True)
-
-        for index, row in enumerate(rows_iter):
-            if value in row:
-                return index
-        raise ValueError(f"Value {value} not found in sheet!")
 
 
     def _get_company_id(self, investment: list) -> str:
