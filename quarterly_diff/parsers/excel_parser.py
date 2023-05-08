@@ -49,6 +49,10 @@ class ExcelParser:
     def currency_col(self):
         return self._find_value_index(self.headers_row, "סוג מטבע")
 
+    @cached_property
+    def fair_value_idx(self):
+        return self._find_value_index(self.headers_row, "שווי הוגן", "שווי שוק")
+
     EXT_TO_LIB = {
         ".xlsx": openpyxl,
         ".xls": xlrd,
@@ -112,6 +116,9 @@ class ExcelParser:
 
     def _get_nominal_value(self, investment: list) -> float:
         return investment[self.nominal_value_idx].value
+
+    def _get_fair_value(self, investment: list, multiplier=1000) -> float:
+        return investment[self.fair_value_idx].value * multiplier
 
     def _get_currency(self, investment: list) -> str:
         return investment[self.currency_col].value
