@@ -46,10 +46,15 @@ def clal_pension_parser() -> ExcelParser:
 def meitav_parser() -> ExcelParser:
     return ExcelParser(_get_portfolio_path(company="meitav", quarter=4, year=22))
 
+@pytest.fixture
+def migdal_parser() -> ExcelParser:
+    return ExcelParser(_get_portfolio_path(company="migdal", quarter=4, year=22))
+
 
 @pytest.mark.parametrize(
     ("parser", "investments_amount"),
     [
+        ("migdal_parser", 23),
         ("menora_parser", 51),
         ("harel_parser", 41),
         ("phoenix_parser", 38),
