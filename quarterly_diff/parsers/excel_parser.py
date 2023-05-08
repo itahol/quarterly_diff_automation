@@ -100,12 +100,6 @@ class ExcelParser:
             if value in row:
                 return index
         raise ValueError(f"Value {value} not found in sheet!")
-        # if self._file_ext == ".xls":
-        #     for row in range(0, self._sheet.nrows):
-        #         if value in self._sheet.row_values(row):
-        #             return value
-        #     raise ValueError(f"Value {value} not found in sheet!")
-        # else:
 
 
     def _get_company_id(self, investment: list) -> str:
