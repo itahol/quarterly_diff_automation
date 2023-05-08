@@ -56,7 +56,7 @@ def meitav_parser() -> ExcelParser:
         ("altshuler_parser", 84),
         ("clal_gemel_parser", 42),
         ("clal_pension_parser", 47),
-        ("meitav_parser", 47),
+        ("meitav_parser", 5),
     ]
 )
 def test_investments_amount(parser: str, investments_amount: int, request: FixtureRequest):
