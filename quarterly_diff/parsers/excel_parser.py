@@ -30,19 +30,19 @@ class ExcelParser:
         return self._sheet[self.headers_row_idx]
 
     @cached_property
-    def company_name_col_idx(self):
+    def company_name_idx(self):
         return self._find_value_index(self.headers_row, "שם המנפיק/שם נייר ערך", "שם המנפיק / שם נייר ערך", 'שם נ"ע')
 
     @cached_property
-    def company_id_col_idx(self):
+    def company_id_idx(self):
         return self._find_value_index(self.headers_row, "מספר מנפיק")
 
     @cached_property
-    def company_category_col_idx(self):
+    def company_category_idx(self):
         return self._find_value_index(self.headers_row, "ענף מסחר")
 
     @cached_property
-    def stake_at_company_col_idx(self):
+    def stake_at_company_idx(self):
         return self._find_value_index(self.headers_row, "ערך נקוב")
 
     @cached_property
@@ -102,7 +102,7 @@ class ExcelParser:
                 condition_func(list(row)))
 
     def _get_company_id(self, investment: list) -> str:
-        cell_value = investment[self.company_id_col_idx].value
+        cell_value = investment[self.company_id_idx].value
         if isinstance(cell_value, str):
             if "תא ללא תוכן" in cell_value:
                 cell_value = ""
@@ -111,16 +111,16 @@ class ExcelParser:
         return cell_value
 
     def _get_stake_at_company(self, investment: list) -> float:
-        return investment[self.stake_at_company_col_idx].value
+        return investment[self.stake_at_company_idx].value
 
     def _get_currency(self, investment: list) -> str:
         return investment[self.currency_col].value
 
     def _get_company_name(self, investment: list) -> str:
-        return investment[self.company_name_col_idx].value
+        return investment[self.company_name_idx].value
 
     def _get_company_category(self, investment: list) -> str:
-        return investment[self.company_category_col_idx].value
+        return investment[self.company_category_idx].value
 
     @property
     def _investments_rows(self) -> Generator[list, None, None]:
