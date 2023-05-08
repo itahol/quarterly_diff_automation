@@ -42,6 +42,10 @@ def clal_gemel_parser() -> ExcelParser:
 def clal_pension_parser() -> ExcelParser:
     return ExcelParser(_get_portfolio_path(company="clal_pension", quarter=4, year=22))
 
+@pytest.fixture
+def meitav_parser() -> ExcelParser:
+    return ExcelParser(_get_portfolio_path(company="meitav", quarter=4, year=22))
+
 
 @pytest.mark.parametrize(
     ("parser", "investments_amount"),
@@ -52,6 +56,7 @@ def clal_pension_parser() -> ExcelParser:
         ("altshuler_parser", 84),
         ("clal_gemel_parser", 42),
         ("clal_pension_parser", 47),
+        ("meitav_parser", 47),
     ]
 )
 def test_investments_amount(parser: str, investments_amount: int, request: FixtureRequest):
