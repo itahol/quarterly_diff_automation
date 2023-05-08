@@ -22,7 +22,7 @@ InvestmentPortfolio = Dict[Tuple[str, str], CompanyInvestment]
 class ExcelParser:
     @cached_property
     def headers_row_idx(self):
-        row_index = self._find_value_row_index("שם המנפיק/שם נייר ערך", "שם המנפיק / שם נייר ערך" , 'שם נ"ע')
+        row_index = self._find_value_row_index("שם המנפיק/שם נייר ערך", "שם המנפיק / שם נייר ערך", 'שם נ"ע')
         return row_index if self._file_ext == ".xls" else row_index + 1
 
     @cached_property
@@ -31,7 +31,7 @@ class ExcelParser:
 
     @cached_property
     def company_name_col_idx(self):
-        return self._find_value_index(self.headers_row, "שם המנפיק/שם נייר ערך", "שם המנפיק / שם נייר ערך",  'שם נ"ע')
+        return self._find_value_index(self.headers_row, "שם המנפיק/שם נייר ערך", "שם המנפיק / שם נייר ערך", 'שם נ"ע')
 
     @cached_property
     def company_id_col_idx(self):
@@ -70,7 +70,7 @@ class ExcelParser:
     @staticmethod
     def _find_value_index(row, *values):
         for i, cell in enumerate(row):
-            if cell.value and any(map(lambda value: cell.value.startswith(value), values)):
+            if cell.value and any(cell.value.startswith(value) for value in values):
                 return i
         raise ValueError(f"None of the values {values} were found in row")
 
@@ -100,7 +100,6 @@ class ExcelParser:
                             condition_func: Callable[[list], Any]) -> Generator[List[XLSXCell], None, None]:
         return (list(row) for row in sheet.iter_rows(min_row=start_index, max_row=end_index) if
                 condition_func(list(row)))
-
 
     def _get_company_id(self, investment: list) -> str:
         cell_value = investment[self.company_id_col_idx].value
