@@ -16,7 +16,7 @@ if TYPE_CHECKING:
     from openpyxl.cell import Cell as XLSXCell
     from xlrd.sheet import Sheet as XLSWorksheet
 
-InvestmentPortfolio = Dict[Tuple[str, str], CompanyInvestment]
+InvestmentPortfolio = Dict[Tuple[str, str, str], CompanyInvestment]
 
 
 class ExcelParser:
@@ -38,6 +38,10 @@ class ExcelParser:
         return self._find_value_index(self.headers_row, "מספר מנפיק")
 
     @cached_property
+    def securities_id_idx(self):
+        return self._find_value_index(self.headers_row, 'מספר נ"ע', "מספר נייר ערך")
+
+    @cached_property
     def company_category_idx(self):
         return self._find_value_index(self.headers_row, "ענף מסחר")
 
@@ -52,6 +56,10 @@ class ExcelParser:
     @cached_property
     def fair_value_idx(self):
         return self._find_value_index(self.headers_row, "שווי הוגן", "שווי שוק")
+
+    @cached_property
+    def share_value_idx(self):
+        return self._find_value_index(self.headers_row, "שער")
 
     EXT_TO_LIB = {
         ".xlsx": openpyxl,
@@ -114,6 +122,15 @@ class ExcelParser:
                 cell_value = cell_value.strip()
         return cell_value
 
+    def _get_securities_id(self, investment: list) -> str:
+        cell_value = investment[self.securities_id_idx].value
+        if isinstance(cell_value, str):
+            if "תא ללא תוכן" in cell_value:
+                cell_value = ""
+            else:
+                cell_value = cell_value.strip()
+        return cell_value
+
     def _get_nominal_value(self, investment: list) -> float:
         return investment[self.nominal_value_idx].value
 
@@ -128,6 +145,9 @@ class ExcelParser:
 
     def _get_company_category(self, investment: list) -> str:
         return investment[self.company_category_idx].value
+
+    def _get_share_value(self, investment: list) -> float:
+        return investment[self.share_value_idx].value
 
     @property
     def _investments_rows(self) -> Generator[list, None, None]:
@@ -144,23 +164,28 @@ class ExcelParser:
     def investments(self) -> Generator[CompanyInvestment, None, None]:
         return (CompanyInvestment(issuer_id=self._get_company_id(investment),
                                   nominal_value=self._get_nominal_value(investment),
+                                  share_value=self._get_share_value(investment),
                                   currency=self._get_currency(investment),
                                   name=self._get_company_name(investment),
-                                  category=self._get_company_category(investment)) for investment in
+                                  category=self._get_company_category(investment),
+                                  securities_id=self._get_securities_id(investment)
+                                  ) for investment in
                 self._investments_rows)
 
     @property
     def summed_investments(self) -> InvestmentPortfolio:
-        companies_dict = {}  # type: Dict[Tuple[str, str], CompanyInvestment]
+        companies_dict = {}  # type: InvestmentPortfolio
         for investment in self.investments:
-            companies_dict[(investment.issuer_id, investment.currency)] = companies_dict.get(
-                (investment.issuer_id, investment.currency),
+            companies_dict[(investment.issuer_id, investment.securities_id, investment.currency)] = investment + companies_dict.get(
+                (investment.issuer_id, investment.securities_id, investment.currency),
                 CompanyInvestment(
                     issuer_id=investment.issuer_id,
                     nominal_value=0,
                     currency=investment.currency,
                     name=investment.name,
                     category=investment.category,
+                    share_value=investment.share_value,
+                    securities_id=investment.securities_id,
                 )
-            ) + investment
+            )
         return companies_dict
