@@ -185,6 +185,7 @@ prev = canvas.create_rectangle(
     fill="#FFFFFF",
     outline="")
 
+
 canvas.create_text(
     856.0,
     124.0,
@@ -228,6 +229,15 @@ canvas.create_text(
     font=("Inter", 24 * -1)
 )
 
+canvas.create_text(
+    124.0,
+    50.0,
+    anchor="nw",
+    text='share value - שער, securities id - מספר נייר ערך, issuer id - מספר מנפיק, nominal value - ערך נקוב\n'
+         'calculated fair value - שווי הוגן - share value * nominal value / 100',
+    fill="#000000",
+    font=("Inter", 24 * -1)
+)
 button_image_1 = PhotoImage(
     file=relative_to_assets("button_1.png"))
 
