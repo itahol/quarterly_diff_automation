@@ -176,7 +176,8 @@ class ExcelParser:
     def summed_investments(self) -> InvestmentPortfolio:
         companies_dict = {}  # type: InvestmentPortfolio
         for investment in self.investments:
-            companies_dict[(investment.issuer_id, investment.securities_id, investment.currency)] = investment + companies_dict.get(
+            companies_dict[(investment.issuer_id, investment.securities_id, investment.currency)] = investment + \
+                                                                                                    companies_dict.get(
                 (investment.issuer_id, investment.securities_id, investment.currency),
                 CompanyInvestment(
                     issuer_id=investment.issuer_id,
