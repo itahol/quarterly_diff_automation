@@ -39,7 +39,7 @@ class ExcelParser:
 
     @cached_property
     def securities_id_idx(self):
-        return self._find_value_index(self.headers_row, 'מספר נ"ע', "מספר נייר ערך")
+        return self._find_value_index(self.headers_row, 'מספר נ"ע', "מספר נייר ערך", 'מספר ני"ע')
 
     @cached_property
     def company_category_idx(self):
