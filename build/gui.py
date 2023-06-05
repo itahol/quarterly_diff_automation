@@ -8,6 +8,7 @@ from threading import Thread
 # Explicit imports to satisfy Flake8
 from tkinter import Canvas, Text, Button, PhotoImage, Frame, LEFT, HORIZONTAL, Toplevel, Label, font
 from tkinter.ttk import Progressbar
+from typing import List, Tuple, Dict, Generator
 
 import openpyxl
 from PIL import ImageTk, Image
@@ -39,7 +40,15 @@ curr_quarter_path = ""
 is_running = False
 
 
-def dict_to_excel(output_path, fieldnames, *args, force=True):
+def dict_to_excel(output_path: str, fieldnames: List[str], *args: Tuple[str, Generator[Dict, None, None]], force: bool=True):
+    """
+
+    :param output_path: Where to save the Excel
+    :param fieldnames: The names of the fields in each dict,
+    :param args: Tuples of (name of the sheet, iterator of sheet data)
+    :param force: Should overwrite the file in output path
+    :return:
+    """
     # create a new workbook
     if force and os.path.exists(output_path):
         os.remove(output_path)
@@ -91,6 +100,12 @@ def popup(message, title=None):
     popup_window.lift()
 
 
+def _asdict_with_properties(obj, *properties_names):
+    result = asdict(obj)
+    for property_name in properties_names:
+        result[property_name] = getattr(obj, property_name)
+    return result
+
 def save_diff_result():
     global is_running
     if is_running:
@@ -109,10 +124,10 @@ def save_diff_result():
         output_path = os.path.abspath(r"results.xlsx")
         new_investments, updated_investments, deprecated_investments = compare_portfolios(prev_quarter_path,
                                                                                           curr_quarter_path)
-        dict_to_excel(output_path, [field.name for field in fields(CompanyInvestment)],
-                      ("updated investments", (asdict(inv) for inv in updated_investments.values())),
-                      ("new investments", (asdict(inv) for inv in new_investments.values())),
-                      ("deprecated investments", (asdict(inv) for inv in deprecated_investments.values())),
+        dict_to_excel(output_path, [field.name for field in fields(CompanyInvestment)] + ["calculated_fair_value"],
+                      ("updated investments", (_asdict_with_properties(inv, "calculated_fair_value") for inv in updated_investments.values())),
+                      ("new investments", (_asdict_with_properties(inv, "calculated_fair_value") for inv in new_investments.values())),
+                      ("deprecated investments", (_asdict_with_properties(inv, "calculated_fair_value") for inv in deprecated_investments.values())),
                       force=True
                       )
         popup(title="success", message=f"Done :) Results saved at {output_path}")
@@ -170,6 +185,7 @@ prev = canvas.create_rectangle(
     fill="#FFFFFF",
     outline="")
 
+
 canvas.create_text(
     856.0,
     124.0,
@@ -213,6 +229,15 @@ canvas.create_text(
     font=("Inter", 24 * -1)
 )
 
+canvas.create_text(
+    124.0,
+    50.0,
+    anchor="nw",
+    text='share value - שער, securities id - מספר נייר ערך, issuer id - מספר מנפיק, nominal value - ערך נקוב\n'
+         'calculated fair value - שווי הוגן - share value * nominal value / 100',
+    fill="#000000",
+    font=("Inter", 24 * -1)
+)
 button_image_1 = PhotoImage(
     file=relative_to_assets("button_1.png"))
 
